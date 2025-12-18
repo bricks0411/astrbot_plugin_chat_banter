@@ -25,7 +25,7 @@ class RussianRoulette(Star):
         logger.info(message_chain)
         yield event.plain_result(f"Hello, {user_name}, 你发了 {message_str}!") # 发送一条纯文本消息
 
-    @filter.command("/add")
+    @filter.command("add")
     async def GetSum(self, event: AstrMessageEvent, a: int, b: int):
         yield event.plain_result(f"结果是：{a + b}。")
         
