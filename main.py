@@ -47,22 +47,20 @@ class RussianRoulette(Star):
         target_at = None
         # 消息内容
         content_parts = []
-        # 机器人账号
-        bot_id = event.raw_message.get("self_id")
+        # 艾特列表
+        at_list = []
         # 解析消息，并判断消息合法性
         for msg in messages:
             if isinstance(msg, At):
-                # 若艾特了不止一个人，那么直接报错
-                if target_at is not None:
-                    yield event.plain_result("只能 @ 一个用户！")
-                    return
-                # 若艾特的是机器人，则忽略掉
-                if msg.qq == bot_id:
-                    continue
-                target_at = msg
+                at_list.append(msg)
             elif isinstance(msg, Plain):
                 content_parts.append(msg.text)
-            
+        # 检查是否为 @bot 后跟 @目标用户
+        if len(at_list) != 2:
+            yield event.plain_result("用法：@我 /说 @目标用户 内容")
+            return
+        # 获取目标用户
+        target_at = at_list[1]
         if not target_at:
             yield event.plain_result("请 @ 一个用户")
             return
