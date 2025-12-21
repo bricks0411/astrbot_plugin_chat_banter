@@ -13,6 +13,15 @@ TRIGGERS_GOOD_NIGHT = {
     "wanan"
 }
 
+TRIGGERS_GOOD_MORNING = {
+    "早上好",
+    "goodmorning",
+    "Goodmorning",
+    "good morning",
+    "Good morning",
+    "早上好啊"
+}
+
 # 插件信息注册
 @register(
     "test_plugin", 
@@ -28,7 +37,7 @@ class RussianRoulette(Star):
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
 
-    # 注册指令的装饰器。指令名为 helloworld。注册成功后，发送 任何包含关键字的语句 就会触发这个指令，并回复对应的内容
+    # 注册指令的装饰器。触发关键字成功后，发送 任何包含关键字的语句 就会触发这个指令，并回复对应的内容
     @filter.event_message_type(
             filter.EventMessageType.GROUP_MESSAGE |
             filter.EventMessageType.PRIVATE_MESSAGE
@@ -63,6 +72,45 @@ class RussianRoulette(Star):
         # 日志记录
         logger.info(
             f"[goodNight] trigger | "
+            f"user={user_name} | "
+            f"text={text}"
+        )
+
+
+        yield event.plain_result(result)                   # 发送一条纯文本消息
+
+    # 注册指令的装饰器。触发关键字成功后，发送 任何包含关键字的语句 就会触发这个指令，并回复对应的内容
+    @filter.event_message_type(
+            filter.EventMessageType.GROUP_MESSAGE |
+            filter.EventMessageType.PRIVATE_MESSAGE
+    )
+    async def goodMorning(self, event: AstrMessageEvent):
+        """这是一个 早上好 指令"""                         # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
+        # message_str = event.message_str                 # 用户发的纯文本消息字符串
+        # message_chain = event.get_messages()            # 用户所发的消息的消息链 # from astrbot.api.message_components import *
+
+        user_name = event.get_sender_name()             # 发送消息的用户名称
+        text = event.message_str.strip()
+
+        if not text:
+            logger.info("空消息。")
+            return
+        
+        if not any(key in text for key in TRIGGERS_GOOD_MORNING):
+            return
+
+        # logger.info(message_chain)                      # 日志输出
+        result = (
+            f"哼，早上好呀，{user_name}。\n"
+            "昨晚睡得还好吗？别、别误会，我才不是关心你，只是觉得你要是迟到会很丢脸而已。\n"
+
+            "\n快去洗漱吃早饭，打起精神来。\n"
+            "今天也要好好表现，听到了没有？\n"
+        )
+
+        # 日志记录
+        logger.info(
+            f"[goodMorning] trigger | "
             f"user={user_name} | "
             f"text={text}"
         )
