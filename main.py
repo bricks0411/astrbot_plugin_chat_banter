@@ -43,37 +43,56 @@ class RussianRoulette(Star):
             filter.EventMessageType.GROUP_MESSAGE |
             filter.EventMessageType.PRIVATE_MESSAGE
     )
-    async def goodNight_Morning(self, event: AstrMessageEvent):
-        """这是一个 晚安/早上好 指令"""                         # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
-        # message_str = event.message_str                 # 用户发的纯文本消息字符串
-        # message_chain = event.get_messages()            # 用户所发的消息的消息链 # from astrbot.api.message_components import *
+    async def handleMessages(self, event: AstrMessageEvent):
+        """这是一个 综合处理 群消息/私聊消息 的函数"""                         # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
+        # message_str = event.message_str                              # 用户发的纯文本消息字符串
+        # message_chain = event.get_messages()                         # 用户所发的消息的消息链 # from astrbot.api.message_components import *
 
-        user_name = event.get_sender_name()             # 发送消息的用户名称
+        user_name = event.get_sender_name()                            # 发送消息的用户名称
         text = event.message_str.strip()
 
         if not text:
             logger.info("空消息。")
             return
         
-        if any(key in text for key in TRIGGERS_GOOD_NIGHT):
-            result = (
-                f"晚，晚安啦，{user_name}！\n"
-                "别误会，我可不是担心你，只是……今天看你还算努力。\n"
-                "早点睡，明天要是状态不好，可是会拖后腿的，知道吗？\n"
-                "……还有，别熬夜想些乱七八糟的事。\n"
-                "休息好，才、才不准做噩梦呢……\n"
+        if event.group_id:
+            messages = event.get_messages()
+            # 判断是否至少满足 At + Plain
+            if len(messages) < 2:                               
+                return
+            
+            # 获取必要信息备用
+            at = messages[0]
+            plain = messages[1]
+            text_say = plain.text.strip()
 
-                "\n（小声）\n"
-                "……晚安。要是做梦的话，也给我做个像样点的。"
+            # 判断是否为 At 消息
+            if not isinstance(at, At):                          
+                return
+            # 判断后续是否为 Plain 消息
+            if not isinstance(plain, Plain):                    
+                return
+            # 判断是否以“说”开头
+            if not text_say.startswith("说"):                           
+                return
+            
+            content = text_say[1:].strip()
+            if not content:
+                return
+            
+            # 构造伪造消息
+            node = Node ( 
+                uin = at.qq,
+                name = at.name,
+                content = [Plain(content)]
             )
             # 日志记录
             logger.info(
-                f"[goodNight] trigger | "
-                f"user={user_name} | "
-                f"text={text}"
+                f"[fake_say] fake | "
+                f"target={at.qq} | "
+                f"content={content}"
             )
-            yield event.plain_result(result)                   # 发送一条纯文本消息
-            return
+            yield event.chain_result([node])
         elif any(key in text for key in TRIGGERS_GOOD_MORNING):
             result = (
                 f"哼，早上好呀，{user_name}。\n"
@@ -89,6 +108,25 @@ class RussianRoulette(Star):
                 f"text={text}"
             )
             yield event.plain_result(result)                    # 发送一条纯文本消息
+            return
+        elif any(key in text for key in TRIGGERS_GOOD_NIGHT):
+            result = (
+                f"晚，晚安啦，{user_name}！\n"
+                "别误会，我可不是担心你，只是……今天看你还算努力。\n"
+                "早点睡，明天要是状态不好，可是会拖后腿的，知道吗？\n"
+                "……还有，别熬夜想些乱七八糟的事。\n"
+                "好好休息，才、才不准做噩梦呢……\n"
+
+                "\n（小声）\n"
+                "……晚安。要是做梦的话，也给我做个像样点的。"
+            )
+            # 日志记录
+            logger.info(
+                f"[goodNight] trigger | "
+                f"user={user_name} | "
+                f"text={text}"
+            )
+            yield event.plain_result(result)                   # 发送一条纯文本消息
             return
 
     # 注册指令装饰器
