@@ -37,11 +37,11 @@ class RussianRoulette(Star):
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
-        
+
     # 伪造指令，基本格式为 @bot /说 @目标用户 [消息内容]
     @filter.command("说")
     async def FakeMessage(self, event: AstrMessageEvent):
-        if event.is_group():
+        if event.message_type == filter.EventMessageType.GROUP_MESSAGE:
             messages = event.get_messages()
             # 目标用户
             target_at = None
