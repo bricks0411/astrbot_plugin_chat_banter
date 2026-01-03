@@ -1,6 +1,10 @@
 import datetime
 import hashlib
 import random
+import json
+import os
+import asyncio
+import tempfile
 
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
@@ -37,6 +41,12 @@ TRIGGERS_GOOD_MORNING = {
 
 class TestPlugin(Star):
     def __init__(self, context: Context):
+        self.rank_file = os.path.join(
+            "data", 
+            "plugins",
+            "test_plugin-main",
+            "fortune_rank.json"
+        )
         super().__init__(context)
 
     async def initialize(self):
@@ -185,6 +195,37 @@ class TestPlugin(Star):
 
         yield event.plain_result(result)
 
+        await self._update_rank(self, user_id, user_name, luck_value, today)
+
+    @filter.command("运势排行", alias = {'今日运势排行', '运势排行榜'})
+    async def FortuneRank(self, event: AstrMessageEvent):
+        """处理今日运势排行榜，群成员输入指令触发"""
+        # 获取日期
+        today = datetime.date.today().isoformat()
+        # 读取排行数据
+        rank_data = self._load_rank()
+
+        # 检查今日是否有数据
+        if today not in rank_data or not rank_data[today]:
+            yield event.plain_result("📊 今日还没有人抽运势哦～")
+            return
+        
+        # 按幸运值排序，取前十名
+        sorted_users = sorted(
+            rank_data[today].values(),
+            key = lambda x: x["luck"],
+            reverse = True
+        )[:10]
+
+        medals = ["🥇", "🥈", "🥉"]
+        lines = ["【今日运势排行榜】"]
+        # 生成排行榜文本
+        for i, user in enumerate(sorted_users):
+            prefix = medals[i] if i < 3 else f"{i + 1}️⃣"
+            lines.append(f"{prefix} {user['name']}  {user['luck']}")
+        # 发送结果
+        yield event.plain_result("\n".join(lines))
+
     # 幸运等级
     def _luck_level(self, value: int) -> str:
         if value >= 90:
@@ -223,6 +264,40 @@ class TestPlugin(Star):
             "摆烂",
             "调戏 Asuka"
         ]
+
+    # 排行榜更新：添加锁机制，保证写操作满足原子性
+    async def _update_rank(self, user_id, user_name, luck, today):
+        async with self.rank_lock:
+            data = self._load_rank()
+
+            data.setdefault(today, {})
+            data[today][user_id] = {
+                "name": user_name,
+                "luck": luck
+            }
+
+            self._save_rank(data)
+
+    # 载入排行文件（json）
+    def _load_rank(self):
+        if not os.path.exists(self.rank_file):
+            return {}
+        with open(self.rank_file, "r", encoding = "utf-8") as f:
+            return json.load(f)
+
+    # 写入排行文件
+    def _save_rank(self, data):
+        dir_path = os.path.dirname(self.rank_path)
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=dir_path,
+            delete=False
+        ) as tmp:
+            json.dump(data, tmp, ensure_ascii=False, indent=2)
+            tmp_path = tmp.name
+
+        os.replace(tmp_path, self.rank_path)
 
     # 注册指令装饰器
     @filter.command("add")
