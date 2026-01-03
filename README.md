@@ -15,9 +15,11 @@
   <img src="https://count.getloli.com/@Brick0411andhisbot?name=Brick0411andhisbot&theme=booru-lisu&padding=10&offset=0&align=center&scale=0.8&pixelated=1&darkmode=1" alt="Moe Counter">
 </p>
 
-一个基于 **AstrBot v4.5.7 +** 版本的群聊娱乐插件，支持**每日运势**、**迫害群友**和**特殊问候**等功能。
+这个项目是一个基于 **AstrBot v4.5.7 +** 版本的群聊娱乐插件，支持**每日运势**、**迫害群友**和**特殊问候**等功能。
 
 感谢**ChatGPT**和**官方文档**的技术指导，如果没有它们的帮助，我应该连怎么写插件都很难学会。
+
+插件接入LLM的功能是ChatGPT帮忙实现的，这也是我在 $1$ 月 $3$ 日能高效更新两次的原因。
 
 还有一些功能没有实装，等测试无误了再上传。
 
