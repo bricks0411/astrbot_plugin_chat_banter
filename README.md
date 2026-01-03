@@ -7,8 +7,9 @@
 <p align="center">
   <img src="https://img.shields.io/badge/License-AGPL_3.0-blue.svg" alt="License: AGPL-3.0">
   <img src="https://img.shields.io/badge/Python-3.10+-yellow.svg" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/AstrBot-v4.x.x-orange.svg" alt="AstrBot v4.x.x">
+  <img src="https://img.shields.io/badge/AstrBot-v4.5.7+-orange.svg" alt="AstrBot v4.5.7+">
 </p>
+
 
 <p align="center">
   <img src="https://count.getloli.com/@Brick0411andhisbot?name=Brick0411andhisbot&theme=booru-lisu&padding=10&offset=0&align=center&scale=0.8&pixelated=1&darkmode=1" alt="Moe Counter">
@@ -16,7 +17,7 @@
 
 一个基于 **AstrBot v4.x** 的群聊娱乐插件，支持**每日运势**、**迫害群友**和**特殊问候**等功能。
 
-感谢**ChatGPT**和**官方文档**的技术指导，如果没有它们的帮助，我可能连怎么写插件都很难学会。
+感谢**ChatGPT**和**官方文档**的技术指导，如果没有它们的帮助，我应该连怎么写插件都很难学会。
 
 还有一些功能没有实装，等测试无误了再上传。
 
@@ -39,8 +40,9 @@ $2026$ 年 $1$ 月 $3$ 日 - 第 $1$ 版项目上传。
 - **插件名**：ChatBanter
 - **作者**：Bricks0411
 - **版本**：0.0.3
-- **适配框架**：AstrBot v4.x.x
+- **适配框架**：AstrBot v4.5.7 +
 - **平台**：NapCat / aiocqhttp（WebSocket 反向连接）
+- **适配平台**：QQ 个人号。
 
 ## 功能列表
 
