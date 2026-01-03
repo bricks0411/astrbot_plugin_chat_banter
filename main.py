@@ -36,7 +36,7 @@ TRIGGERS_GOOD_MORNING = {
     "ChatBanter", 
     "Bricks0411", 
     "群聊娱乐小插件，包含迫害群友、特殊问候和今日运势等功能。", 
-    "0.0.3"
+    "0.0.5"
 )
 
 class ChatBanter(Star):
