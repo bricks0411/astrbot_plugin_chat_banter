@@ -1,3 +1,7 @@
+import datetime
+import hashlib
+import random
+
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
@@ -31,7 +35,7 @@ TRIGGERS_GOOD_MORNING = {
     "0.0.3"
 )
 
-class RussianRoulette(Star):
+class TestPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
 
@@ -42,6 +46,7 @@ class RussianRoulette(Star):
     @filter.event_message_type(filter.EventMessageType.GROUP_MESSAGE)
     @filter.command("说")
     async def FakeMessage(self, event: AstrMessageEvent):
+        """伪造群成员消息，仅供娱乐使用。"""                             # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
         messages = event.get_messages()
         # 目标用户
         target_at = None
@@ -95,8 +100,8 @@ class RussianRoulette(Star):
             filter.EventMessageType.GROUP_MESSAGE |
             filter.EventMessageType.PRIVATE_MESSAGE
     )
-    async def handleMessages(self, event: AstrMessageEvent):
-        """这是一个 处理 早上好/晚安 的函数"""                           # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
+    async def SpecialGreeting(self, event: AstrMessageEvent):
+        """这是一个 处理 早上好/晚安 的函数"""                             # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
         # message_str = event.message_str                              # 用户发的纯文本消息字符串
         # message_chain = event.get_messages()                         # 用户所发的消息的消息链 # from astrbot.api.message_components import *
 
@@ -142,6 +147,82 @@ class RussianRoulette(Star):
             )
             yield event.plain_result(result)                   # 发送一条纯文本消息
             return
+
+    @filter.command("今日运势", alias = {'运势'})
+    async def TodayFortune(self, event: AstrMessageEvent):
+        """处理今日运势，群成员艾特后输入指令触发"""
+        user_id = str(event.get_sender_id())            # 获取用户 QQ 号
+        user_name = event.get_sender_name()             # 获取用户名称
+
+        # 获取日期
+        today = datetime.date.today().isoformat()
+
+        # 随机数种子：用户 QQ 号 + 日期
+        seed_str = user_id + today
+        seed = int(hashlib.md5(seed_str.encode()).hexdigest(), 16)
+        random.seed(seed)
+
+        # 今日幸运值（由刚才的种子生成，范围为1 ~ 100）
+        luck_value = random.randint(1, 100)
+
+        luck_level = self._luck_level(luck_value)       # 返回幸运等级
+        good = random.choice(self._good_list())         # 返回今日宜做的事情
+        bad = random.choice(self._bad_list())           # 返回今日忌做的事情
+
+        # 额外逻辑：若为大吉，则诸事皆宜
+        if luck_value >= 90:
+            good = "诸事皆宜"
+            bad = "无"
+
+        result = (
+            f"【今日运势】\n"
+            f"用户：{user_name}\n"
+            f"🍀 今日人品：{luck_value}\n"
+            f"📈 运势：{luck_level}\n"
+            f"✅ 宜：{good}\n"
+            f"❌ 忌：{bad}"
+        )
+
+        yield event.plain_result(result)
+
+    # 幸运等级
+    def _luck_level(self, value: int) -> str:
+        if value >= 90:
+            return "大吉"
+        elif value >= 80:
+            return "中吉"
+        elif value >= 50:
+            return "小吉"
+        elif value >= 30:
+            return "平"
+        else:
+            return "凶"
+
+    # 列表：宜    
+    def _good_list(self):
+        return [
+            "摸鱼",
+            "水群",
+            "写 BUG",
+            "拖延",
+            "看番",
+            "打游戏",
+            "加训",
+            "发呆"
+        ]
+
+    # 列表：忌
+    def _bad_list(self):
+        return [
+            "写文档",
+            "改需求",
+            "修 BUG",
+            "加班",
+            "早起",
+            "开会",
+            "摆烂",
+            "调戏 Asuka"
+        ]
 
     # 注册指令装饰器
     @filter.command("add")
