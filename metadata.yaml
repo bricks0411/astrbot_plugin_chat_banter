@@ -3,4 +3,4 @@ display_name: Chatbanter					                          # 用于展示的名字�
 desc: 群聊娱乐小插件，包含迫害群友、特殊问候和今日运势等功能。   # 插件简短描述
 version: v0.0.5 						                                # 插件版本号。格式：v1.1.1 或者 v1.1
 author: Bricks0411 						                              # 作者
-repo: https://github.com/bricks0411/ChatBanter.git   	      # 插件的仓库地址
+repo: https://github.com/bricks0411/ChatBanter       	      # 插件的仓库地址
