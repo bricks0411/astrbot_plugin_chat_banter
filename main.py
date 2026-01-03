@@ -124,6 +124,7 @@ class TestPlugin(Star):
             logger.info("空消息。")
             return
         
+        # 判断触发关键字
         if any(key in text for key in TRIGGERS_GOOD_MORNING):
             result = (
                 f"哼，早上好呀，{user_name}。\n"
@@ -307,10 +308,12 @@ class TestPlugin(Star):
     # 注册指令装饰器
     @filter.command("add")
     async def GetSum(self, event: AstrMessageEvent, a: int, b: int):
+        """计算两个整数的和"""
         yield event.plain_result(f"结果是：{a + b}！")
 
     @filter.command("sub")
     async def GetMinus(self, event: AstrMessageEvent, a: int, b: int):
+        """计算两个整数的差"""
         yield event.plain_result(f"结果是：{a - b}！")
 
     async def terminate(self):
